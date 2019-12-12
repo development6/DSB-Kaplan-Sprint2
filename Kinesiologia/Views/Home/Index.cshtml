@@ -293,17 +293,43 @@
             <td><input type="radio" name="ChartType2" value="1" checked="checked" />Bar</td>
             <td><input type="radio" name="ChartType2" value="2" />Radar</td>
         </tr>
+        <!--<tr>
+            <td><input type="radio" name="ChartType3" value="1" checked="checked" />Bar</td>
+            <td><input type="radio" name="ChartType3" value="2" />Radar</td>
+        </tr>-->
     </table>
-    <div id="dvChart2" style="width:50%; position:relative;">
-    </div>
-    <div id="dvMensaje"></div>
 
+    <table>
+        <tr>
+            <td width="600">
+                <div id="dvChart2">
+                </div>
+                <div id="dvMensaje" align="center"></div>
+            </td>
+            <td width="600">
+                <div id="dvChartno">
+                </div>
+            </td>
+        </tr>
+    </table>
+
+
+    <!--<table id="rblChartType3" border="0" style="position:absolute; top: 440px; left:730px">
+        <tr>
+            <td><input type="radio" name="ChartType3" value="1" checked="checked" />Bar</td>
+            <td><input type="radio" name="ChartType3" value="2" />Radar</td>
+        </tr>
+
+    </table>
+    <div id="dvChartno" style="width:45%; position:absolute; top:490px; left:715px">
+    </div>-->
 
 
     <script type="text/javascript">
 
         $(function () {
             LoadChart2();
+            LoadChart3();
             /*$("#ddlGenero1", "#ddlRiesgo2", "#ddlFecha1").bind("change", function () {
                 LoadChart2();
             });*/
@@ -312,6 +338,7 @@
             });
             $("#rblChartType2 input").bind("click", function () {
                 LoadChart2();
+                LoadChart3();
             });
         });
         function LoadChart2() {
@@ -457,6 +484,128 @@
 
 
 
+
+        function LoadChart3() {
+            var chartType2 = parseInt($("#rblChartType2 input:checked").val());
+            var ingreso3 = [];
+            var egreso3 = [];
+            var datachart3 = {
+                labels: ["Vol", "Voml", "Fcmax", "Pulso", "Ve", "Mets"],
+                datasets: [
+                    {
+                        label: "Ingreso",
+                        backgroundColor: "rgba(90,193,208,0.3)",
+                        borderColor: "rgba(151,187,205,0.7)",
+                        borderWidth: 1,
+                        hoverBackgroundColor: "rgba(151,187,205,1)",
+                        hoverBorderColor: "rgba(151,187,205,0.5)",
+                        data: ingreso3
+                    },
+                    {
+                        label: "Egreso",
+                        backgroundColor: "rgba(215,220,67,0.3)",
+                        borderColor: "rgba(220,220,220,0.7)",
+                        borderWidth: 1,
+                        hoverBackgroundColor: "rgba(220,220,220,1)",
+                        hoverBorderColor: "rgba(220,220,220,0.5)",
+                        data: egreso3
+                    }
+                ]
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Home/AjaxMethod3",
+                data: {},
+                contentType: "application/json; charset=utf-8",
+                dataType: "text",
+                success: function (response) {
+                    $("#dvChartno").html("");
+                    //$("#dvLegend").html("");
+                    //$("#dvTabla").html("");
+                    var data = eval(response);
+                    //var data = (eval("(" + response.d + ")"));
+                    var el = document.createElement('canvas');
+                    $("#dvChartno")[0].appendChild(el);
+
+
+                    //window.alert(data);
+                    //Fix for IE 8
+                    if ($.browser.msie && $.browser.version == "8.0") {
+                        G_vmlCanvasManager.initElement(el);
+                    }
+
+                    for (var i = 0; i < data.length; i++) {
+                        ingreso3.push(data[i].value0, data[i].value1, data[i].value2, data[i].value3, data[i].value4, data[i].value5);
+                        egreso3.push(data[i].value6, data[i].value7, data[i].value8, data[i].value9, data[i].value10, data[i].value11);
+                    }
+
+                    //console.log(ingreso);
+                    //window.alert(ingreso);
+
+                    var ctx = el.getContext('2d');
+                    var userStrengthsChart3;
+
+                    switch (chartType2) {
+                        case 1:
+                            userStrengthsChart3 = new Chart(ctx, {
+                                type: 'bar',
+                                data: datachart3,
+                                options: {
+                                    title: {
+                                        display: true,
+                                        text: "Ergometría promedio"
+                                    },
+                                    scales: {
+                                        yAxes: [
+                                            {
+                                                ticks: {
+                                                    //fontFamily: "Roboto Mono",
+                                                    //fontColor: "#556F7B",
+                                                    //fontStyle: "bold",
+                                                    beginAtZero: true,
+                                                    //maxTicksLimit: 5,
+                                                    //padding: 20
+                                                },
+                                                gridLines: {
+                                                    //drawTicks: false,
+                                                    //display: false,
+                                                    //drawBorder: false
+                                                }
+                                            }
+                                        ],
+                                    }
+                                }
+                            });
+                            break;
+                        case 2:
+                            userStrengthsChart3 = new Chart(ctx, {
+                                type: 'radar',
+                                data: datachart3,
+                                options: {
+                                    title: {
+                                        display: true,
+                                        text: "Ergometría promedio"
+                                    },
+                                    /*scale: {
+                                        ticks: {
+                                            beginAtZero: true,
+                                        }
+                                    }*/
+                                }
+                            });
+                            break;
+
+                    }
+                },
+                failure: function (response) {
+                    alert('Ocurrió un error.');
+                },
+
+            });
+        }
+
+
+
     </script>
 
 
@@ -466,7 +615,7 @@
 
 
 
-    <table id="rblChartType3" border="0" style="position:absolute; top: 440px; left:730px">
+    <!--<table id="rblChartType3" border="0" style="position:absolute; top: 440px; left:730px">
         <tr>
             <td><input type="radio" name="ChartType3" value="1" checked="checked" />Bar</td>
             <td><input type="radio" name="ChartType3" value="2" />Radar</td>
@@ -474,9 +623,8 @@
 
     </table>
     <div id="dvChartno" style="width:45%; position:absolute; top:490px; left:715px">
-    </div>
-
-
+    </div>-->
+    <!--
     <script type="text/javascript">
 
 
@@ -610,8 +758,7 @@
 
     </script>
 
-
-
+    -->
     <!-- <dialog open>No se encuentran datos con estos parámetros</dialog>-->
 </body>
 </html>
